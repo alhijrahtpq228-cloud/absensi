@@ -62,12 +62,12 @@
             transition: all 0.3s;
         }
         
-        .btn-guru {
+        .btn-ustadz {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
         }
         
-        .btn-guru:hover {
+        .btn-ustadz:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
         }
@@ -570,8 +570,8 @@
             <p>Sistem Absensi Online</p>
             
             <div class="mode-buttons">
-                <button class="btn-mode btn-Ustadz/Ustadzah" onclick="login('Ustadz/Ustadzah')">
-                    👨‍🏫 Mode Ustadz/Ustadzah
+                <button class="btn-mode btn-ustadz" onclick="login('ustadz')">
+                    🧕 Mode Ustadz/Ustadzah
                 </button>
                 <button class="btn-mode btn-admin" onclick="showAdminLogin()">
                     🔐 Mode Admin
@@ -588,7 +588,7 @@
                 <p id="currentDate">-</p>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="user-badge" id="userBadge">👨‍🏫 Guru</span>
+                <span class="user-badge" id="userBadge">🧕 Ustadz/Ustadzah</span>
                 <button class="btn-logout" onclick="logout()">Logout</button>
             </div>
         </div>
@@ -762,7 +762,7 @@
                 document.getElementById('userBadge').textContent = '🔐 Admin';
                 document.getElementById('adminTips').style.display = 'block';
             } else {
-                document.getElementById('userBadge').textContent = '👨‍🏫 Guru';
+                document.getElementById('userBadge').textContent = '🧕 Ustadz/Ustadzah';
             }
             
             updateDate();
@@ -1025,4 +1025,3 @@
     </script>
 </body>
 </html>
-
