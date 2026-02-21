@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi Santri - TPQ AL-HIJRAH</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .login-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .login-box h2 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+        
+        .login-box p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .mode-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .btn-mode {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-guru {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .btn-guru:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-admin {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+        
+        .btn-admin:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(220, 53, 69, 0.3);
+        }
+        
+        .main-container {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header-top {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .header-info h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header-info p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .user-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+        
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: white;
+            color: #1e3c72;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            border-color: #1e3c72;
+            transform: translateY(-2px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        .card-icon {
+            font-size: 24px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-top: 10px;
+        }
+        
+        .alert-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .alert-section.active {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+        }
+        
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: #856404;
+            font-weight: 600;
+        }
+        
+        .alert-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .alert-item {
+            background: #856404;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .notification-status {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+        
+        .status-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .status-btn {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .status-btn:hover {
+            border-color: #1e3c72;
+            transform: translateY(-2px);
+        }
+        
+        .status-btn.active {
+            background: #1e3c72;
+            color: white;
+            border-color: #1e3c72;
+        }
+        
+        .status-btn.hadir.active { background: #28a745; border-color: #28a745; }
+        .status-btn.izin.active { background: #ffc107; border-color: #ffc107; color: #333; }
+        .status-btn.sakit.active { background: #dc3545; border-color: #dc3545; }
+        .status-btn.alpha.active { background: #6c757d; border-color: #6c757d; }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+            grid-column: 1 / -1;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(30, 60, 114, 0.3);
+        }
+        
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .controls-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-export, .btn-clear, .btn-filter-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-export {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-export:hover {
+            background: #218838;
+        }
+        
+        .btn-clear {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-clear:hover {
+            background: #c82333;
+        }
+        
+        .btn-filter-btn {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .filter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .filter-section.active {
+            display: block;
+            animation: slideDown 0.3s;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+        
+        .history-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .history-title {
+            font-size: 20px;
+            color: #1e3c72;
+            font-weight: 600;
+        }
+        
+        .total-badge {
+            background: #1e3c72;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .attendance-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .attendance-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .attendance-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .attendance-item.hadir { border-left-color: #28a745; }
+        .attendance-item.izin { border-left-color: #ffc107; }
+        .attendance-item.sakit { border-left-color: #dc3545; }
+        .attendance-item.alpha { border-left-color: #6c757d; }
+        
+        .attendance-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .attendance-info p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .attendance-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .badge {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-hadir { background: #d4edda; color: #155724; }
+        .badge-izin { background: #fff3cd; color: #856404; }
+        .badge-sakit { background: #f8d7da; color: #721c24; }
+        .badge-alpha { background: #d6d8db; color: #383d41; }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .btn-delete:hover {
+            background: #c82333;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 60px 20px;
+            font-style: italic;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            animation: modalSlide 0.3s;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(-50px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .modal-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+        
+        .modal h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .modal p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .password-input {
+            margin: 20px 0;
+        }
+        
+        .password-input input {
+            text-align: center;
+            font-size: 18px;
+            letter-spacing: 3px;
+            padding: 15px;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+            padding: 10px;
+            background: #f8d7da;
+            border-radius: 8px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .btn-confirm {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-confirm:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-cancel:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .admin-only {
+            display: none;
+        }
+        
+        .admin-only.active {
+            display: block;
+        }
+        
+        .guru-only {
+            display: none;
+        }
+        
+        .guru-only.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header-top {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <div class="login-icon">🕌</div>
+            <h2>TPQ AL-HIJRAH</h2>
+            <p>Sistem Absensi Santri</p>
+            <div class="mode-buttons">
+                <button class="btn-mode btn-guru" onclick="login('guru')">
+                    👨‍🏫 Mode Guru
+                </button>
+                <button class="btn-mode btn-admin" onclick="showAdminLogin()">
+                    🔐 Mode Admin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div class="main-container" id="mainApp">
+        <div class="header-top">
+            <div class="header-info">
+                <h1>📖 Sistem Absensi Santri</h1>
+                <p id="currentDate"></p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="user-badge" id="userBadge">
+                    👨‍🏫 Guru
+                </div>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Alert Section for Alpha Students -->
+            <div class="alert-section" id="alphaAlert">
+                <div class="alert-header">
+                    <span style="font-size: 24px;">⚠️</span>
+                    <span>PERINGATAN: Santri Alpha Hari Ini</span>
+                </div>
+                <div class="alert-list" id="alphaList"></div>
+                <div class="notification-status" id="notifStatus">
+                    📱 Notifikasi akan dikirim ke: 082162599377
+                </div>
+            </div>
+
+            <!-- Dashboard Stats -->
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Statistik Hari Ini</span>
+                        <span class="card-icon">📊</span>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="countHadir">0</div>
+                            <div class="stat-label">Hadir</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="countIzin">0</div>
+                            <div class="stat-label">Izin</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="countSakit">0</div>
+                            <div class="stat-label">Sakit</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="countAlpha">0</div>
+                            <div class="stat-label">Alpha</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card admin-only" id="chartCard">
+                    <div class="card-header">
+                        <span class="card-title">Grafik Kehadiran</span>
+                        <span class="card-icon">📈</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Form -->
+            <div class="form-section">
+                <h3 style="margin-bottom: 20px; color: #1e3c72;">📝 Input Absensi</h3>
+                <form id="attendanceForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nama">Nama Santri</label>
+                            <input type="text" id="nama" required placeholder="Masukkan nama santri">
+                        </div>
+                        <div class="form-group">
+                            <label for="nis">Nomor Induk Santri</label>
+                            <input type="text" id="nis" required placeholder="Masukkan nomor induk">
+                        </div>
+                        <div class="form-group">
+                            <label for="kelas">Kelas</label>
+                            <select id="kelas" required>
+                                <option value="">Pilih Kelas</option>
+                                <option value="Kelas 1">Kelas 1</option>
+                                <option value="Kelas 2">Kelas 2</option>
+                                <option value="Kelas 3">Kelas 3</option>
+                                <option value="Kelas 4">Kelas 4</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status Kehadiran</label>
+                            <div class="status-options">
+                                <div class="status-btn hadir" onclick="selectStatus('hadir')">Hadir</div>
+                                <div class="status-btn izin" onclick="selectStatus('izin')">Izin</div>
+                                <div class="status-btn sakit" onclick="selectStatus('sakit')">Sakit</div>
+                                <div class="status-btn alpha" onclick="selectStatus('alpha')">Alpha</div>
+                            </div>
+                            <input type="hidden" id="status" required>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="keterangan">Keterangan (Opsional)</label>
+                            <input type="text" id="keterangan" placeholder="Tambahkan keterangan jika perlu">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">Simpan Absensi</button>
+                </form>
+                <div class="success-message" id="successMessage">
+                    ✅ Absensi berhasil disimpan!
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls-section">
+                <button class="btn-export" onclick="exportToExcel()">
+                    📥 Export Excel
+                </button>
+                <button class="btn-clear admin-only" id="btnClear" onclick="showPasswordModal()">
+                    🗑️ Hapus Semua
+                </button>
+                <button class="btn-filter-btn" onclick="toggleFilter()">
+                    🔍 Filter Data
+                </button>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section" id="filterSection">
+                <div class="filter-grid">
+                    <div class="form-group">
+                        <label>Kelas</label>
+                        <select id="filterKelas">
+                            <option value="">Semua Kelas</option>
+                            <option value="Kelas 1">Kelas 1</option>
+                            <option value="Kelas 2">Kelas 2</option>
+                            <option value="Kelas 3">Kelas 3</option>
+                            <option value="Kelas 4">Kelas 4</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="filterStatus">
+                            <option value="">Semua Status</option>
+                            <option value="hadir">Hadir</option>
+                            <option value="izin">Izin</option>
+                            <option value="sakit">Sakit</option>
+                            <option value="alpha">Alpha</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal</label>
+                        <input type="date" id="filterTanggal">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-filter-btn" onclick="applyFilter()" style="flex: 1;">Terapkan</button>
+                        <button class="btn-cancel" onclick="resetFilter()" style="flex: 1;">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div class="history-section">
+                <div class="history-header">
+                    <h3 class="history-title">📋 Riwayat Absensi</h3>
+                    <span class="total-badge" id="totalCount">Total: 0</span>
+                </div>
+                <div class="attendance-list" id="attendanceList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Password Modal -->
+    <div class="modal" id="adminLoginModal">
+        <div class="modal-content">
+            <div class="modal-icon">🔐</div>
+            <h3>Login Admin</h3>
+            <p>Masukkan password admin untuk melanjutkan</p>
+            <div class="password-input">
+                <input type="password" id="adminLoginPassword" placeholder="Password" onkeypress="checkAdminEnter(event)">
+            </div>
+            <div class="error-message" id="adminLoginError">Password salah!</div>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="verifyAdminLogin()">Login</button>
+                <button class="btn-cancel" onclick="closeAdminLogin()">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clear Data Password Modal -->
+    <div class="modal" id="passwordModal">
+        <div class="modal-content">
+            <div class="modal-icon">🗑️</div>
+            <h3>Hapus Semua Data</h3>
+            <p>Masukkan password admin untuk menghapus semua data</p>
+            <div class="password-input">
+                <input type="password" id="clearPassword" placeholder="Password" onkeypress="checkClearEnter(event)">
+            </div>
+            <div class="error-message" id="clearError">Password salah!</div>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="verifyClearPassword()">Verifikasi</button>
+                <button class="btn-cancel" onclick="closePasswordModal()">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Clear Modal -->
+    <div class="modal" id="confirmClearModal">
+        <div class="modal-content">
+            <div class="modal-icon">⚠️</div>
+            <h3>Konfirmasi Hapus</h3>
+            <p>Anda yakin ingin menghapus SEMUA data absensi? Tindakan ini tidak dapat dibatalkan!</p>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="executeClear()">Ya, Hapus Semua</button>
+                <button class="btn-cancel" onclick="closeConfirmClear()">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const ADMIN_PASSWORD = 'admin123';
+        const NOTIF_PHONE = '082162599377';
+        
+        // State
+        let currentMode = '';
+        let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+        let currentFilter = { kelas: '', status: '', tanggal: '' };
+        let chart = null;
+
+        // Login Functions
+        function login(mode) {
+            currentMode = mode;
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            
+            if (mode === 'admin') {
+                document.getElementById('userBadge').innerHTML = '🔐 Admin';
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('active'));
+                document.querySelectorAll('.guru-only').forEach(el => el.classList.remove('active'));
+                initChart();
+            } else {
+                document.getElementById('userBadge').innerHTML = '👨‍🏫 Guru';
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.guru-only').forEach(el => el.classList.add('active'));
+            }
+            
+            updateDate();
+            displayAttendance();
+            checkAlphaNotifications();
+        }
+
+        function showAdminLogin() {
+            document.getElementById('adminLoginModal').style.display = 'flex';
+            document.getElementById('adminLoginPassword').value = '';
+            document.getElementById('adminLoginError').style.display = 'none';
+            setTimeout(() => document.getElementById('adminLoginPassword').focus(), 100);
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('adminLoginModal').style.display = 'none';
+        }
+
+        function checkAdminEnter(e) {
+            if (e.key === 'Enter') verifyAdminLogin();
+        }
+
+        function verifyAdminLogin() {
+            const input = document.getElementById('adminLoginPassword').value;
+            if (input === ADMIN_PASSWORD) {
+                closeAdminLogin();
+                login('admin');
+            } else {
+                document.getElementById('adminLoginError').style.display = 'block';
+                document.getElementById('adminLoginPassword').value = '';
+            }
+        }
+
+        function logout() {
+            location.reload();
+        }
+
+        // Date Display
+        function updateDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', options);
+        }
+
+        // Status Selection
+        function selectStatus(status) {
+            document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.status-btn.${status}`).classList.add('active');
+            document.getElementById('status').value = status;
+        }
+        selectStatus('hadir');
+
+        // Chart Initialization
+        function initChart() {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            updateChart();
+        }
+
+        function updateChart() {
+            const today = new Date().toDateString();
+            const todayData = attendanceData.filter(item => 
+                new Date(item.timestamp).toDateString() === today
+            );
+            
+            const counts = {
+                hadir: todayData.filter(i => i.status === 'hadir').length,
+                izin: todayData.filter(i => i.status === 'izin').length,
+                sakit: todayData.filter(i => i.status === 'sakit').length,
+                alpha: todayData.filter(i => i.status === 'alpha').length
+            };
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hadir', 'Izin', 'Sakit', 'Alpha'],
+                    datasets: [{
+                        data: [counts.hadir, counts.izin, counts.sakit, counts.alpha],
+                        backgroundColor: ['#28a745', '#ffc107', '#dc3545', '#6c757d'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: { size: 12 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Alpha Notifications
+        function checkAlphaNotifications() {
+            const today = new Date().toDateString();
+            const alphaStudents = attendanceData.filter(item => 
+                item.status === 'alpha' && 
+                new Date(item.timestamp).toDateString() === today
+            );
+
+            const alertSection = document.getElementById('alphaAlert');
+            const alphaList = document.getElementById('alphaList');
+            const notifStatus = document.getElementById('notifStatus');
+
+            if (alphaStudents.length > 0) {
+                alertSection.classList.add('active');
+                alphaList.innerHTML = alphaStudents.map(s => 
+                    `<div class="alert-item">${s.nama} (${s.kelas})</div>`
+                ).join('');
+                
+                // Simulate sending notification
+                notifStatus.innerHTML = `📱 Notifikasi terkirim ke: ${NOTIF_PHONE} (${alphaStudents.length} santri alpha)`;
+                
+                // Browser notification request
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification('TPQ AL-HIJRAH', {
+                        body: `Ada ${alphaStudents.length} santri alpha hari ini!`,
+                        icon: '🕌'
+                    });
+                } else if ('Notification' in window && Notification.permission !== 'denied') {
+                    Notification.requestPermission();
+                }
+            } else {
+                alertSection.classList.remove('active');
+            }
+        }
+
+        // Form Submission
+        document.getElementById('attendanceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                nama: document.getElementById('nama').value,
+                nis: document.getElementById('nis').value,
+                kelas: document.getElementById('kelas').value,
+                status: document.getElementById('status').value,
+                keterangan: document.getElementById('keterangan').value,
+                timestamp: new Date().toISOString()
+            };
+
+            // Check duplicate
+            const today = new Date().toDateString();
+            const isDuplicate = attendanceData.some(item => 
+                item.nis === formData.nis && 
+                new Date(item.timestamp).toDateString() === today
+            );
+
+            if (isDuplicate) {
+                alert('Santri dengan NIS ini sudah absen hari ini!');
+                return;
+            }
+
+            attendanceData.push(formData);
+            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+
+            // Show success
+            document.getElementById('successMessage').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 3000);
+
+            // Reset form
+            this.reset();
+            selectStatus('hadir');
+
+            // Update displays
+            displayAttendance();
+            checkAlphaNotifications();
+            if (currentMode === 'admin') updateChart();
+
+            // If alpha, show immediate alert
+            if (formData.status === 'alpha') {
+                setTimeout(() => {
+                    alert(`⚠️ PERINGATAN!\n\nSantri ${formData.nama} (${formData.kelas}) status ALPHA.\n\nNotifikasi akan dikirim ke: ${NOTIF_PHONE}`);
+                }, 500);
+            }
+        });
+
+        // Filter Functions
+        function toggleFilter() {
+            document.getElementById('filterSection').classList.toggle('active');
+        }
+
+        function applyFilter() {
+            currentFilter.kelas = document.getElementById('filterKelas').value;
+            currentFilter.status = document.getElementById('filterStatus').value;
+            currentFilter.tanggal = document.getElementById('filterTanggal').value;
+            displayAttendance();
+        }
+
+        function resetFilter() {
+            document.getElementById('filterKelas').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterTanggal').value = '';
+            currentFilter = { kelas: '', status: '', tanggal: '' };
+            displayAttendance();
+        }
+
+        function filterData(data) {
+            return data.filter(item => {
+                const itemDate = new Date(item.timestamp).toDateString();
+                const filterDate = currentFilter.tanggal ? new Date(currentFilter.tanggal).toDateString() : '';
+                
+                return (!currentFilter.kelas || item.kelas === currentFilter.kelas) &&
+                       (!currentFilter.status || item.status === currentFilter.status) &&
+                       (!currentFilter.tanggal || itemDate === filterDate);
+            });
+        }
+
+        // Display Functions
+        function displayAttendance() {
+            const list = document.getElementById('attendanceList');
+            const filtered = filterData(attendanceData).reverse();
+            
+            document.getElementById('totalCount').textContent = `Total: ${filtered.length}`;
+            
+            // Update stats
+            const today = new Date().toDateString();
+            const todayData = attendanceData.filter(item => 
+                new Date(item.timestamp).toDateString() === today
+            );
+            
+            document.getElementById('countHadir').textContent = todayData.filter(i => i.status === 'hadir').length;
+            document.getElementById('countIzin').textContent = todayData.filter(i => i.status === 'izin').length;
+            document.getElementById('countSakit').textContent = todayData.filter(i => i.status === 'sakit').length;
+            document.getElementById('countAlpha').textContent = todayData.filter(i => i.status === 'alpha').length;
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="empty-state">Tidak ada data</div>';
+                return;
+            }
+
+            list.innerHTML = filtered.map(item => `
+                <div class="attendance-item ${item.status}">
+                    <div class="attendance-info">
+                        <h4>${item.nama} <span style="font-weight: normal; color: #666;">(${item.kelas})</span></h4>
+                        <p>${item.nis} • ${new Date(item.timestamp).toLocaleDateString('id-ID')} ${new Date(item.timestamp).toLocaleTimeString('id-ID')}</p>
+                        ${item.keterangan ? `<p style="color: #888; font-style: italic;">Ket: ${item.keterangan}</p>` : ''}
+                    </div>
+                    <div class="attendance-actions">
+                        <span class="badge badge-${item.status}">${item.status}</span>
+                        ${currentMode === 'admin' ? `<button class="btn-delete" onclick="deleteItem('${item.timestamp}')">Hapus</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteItem(timestamp) {
+            if (!confirm('Hapus data ini?')) return;
+            attendanceData = attendanceData.filter(i => i.timestamp !== timestamp);
+            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+            displayAttendance();
+            checkAlphaNotifications();
+            if (currentMode === 'admin') updateChart();
+        }
+
+        // Export Function
+        function exportToExcel() {
+            const data = filterData(attendanceData);
+            if (data.length === 0) {
+                alert('Tidak ada data untuk export!');
+                return;
+            }
+
+            let csv = '\uFEFFNo,Nama,NIS,Kelas,Status,Keterangan,Tanggal,Waktu\n';
+            data.forEach((item, idx) => {
+                const d = new Date(item.timestamp);
+                csv += `${idx + 1},${item.nama},${item.nis},${item.kelas},${item.status},${item.keterangan || '-'},${d.toLocaleDateString('id-ID')},${d.toLocaleTimeString('id-ID')}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Absensi_TPQ_AL-HIJRAH_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            alert('File berhasil diunduh!');
+        }
+
+        // Clear Data Functions
+        function showPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+            document.getElementById('clearPassword').value = '';
+            document.getElementById('clearError').style.display = 'none';
+            setTimeout(() => document.getElementById('clearPassword').focus(), 100);
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        function checkClearEnter(e) {
+            if (e.key === 'Enter') verifyClearPassword();
+        }
+
+        function verifyClearPassword() {
+            if (document.getElementById('clearPassword').value === ADMIN_PASSWORD) {
+                closePasswordModal();
+                document.getElementById('confirmClearModal').style.display = 'flex';
+            } else {
+                document.getElementById('clearError').style.display = 'block';
+                document.getElementById('clearPassword').value = '';
+            }
+        }
+
+        function closeConfirmClear() {
+            document.getElementById('confirmClearModal').style.display = 'none';
+        }
+
+        function executeClear() {
+            attendanceData = [];
+            localStorage.removeItem('attendanceData');
+            closeConfirmClear();
+            displayAttendance();
+            checkAlphaNotifications();
+            if (currentMode === 'admin') updateChart();
+            alert('Semua data berhasil dihapus!');
+        }
+
+        // Close modals on outside click
+        window.onclick = function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        }
+
+        // Request notification permission on load
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    </script>
+</body>
+</html>
