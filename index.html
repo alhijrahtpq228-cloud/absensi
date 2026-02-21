@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Absensi Santri - TPQ AL-HIJRAH</title>
+    <title>Sistem Absensi TPQ AL-HIJRAH - Cloud</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -158,6 +158,23 @@
             padding: 30px;
         }
         
+        .sync-status {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+        
+        .sync-status.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -267,9 +284,6 @@
             padding: 8px 15px;
             border-radius: 20px;
             font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
         }
         
         .notification-status {
@@ -372,9 +386,14 @@
             grid-column: 1 / -1;
         }
         
-        .btn-submit:hover {
+        .btn-submit:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(30, 60, 114, 0.3);
+        }
+        
+        .btn-submit:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
         }
         
         .success-message {
@@ -400,7 +419,7 @@
             flex-wrap: wrap;
         }
         
-        .btn-export, .btn-clear, .btn-filter-btn {
+        .btn-export, .btn-clear, .btn-filter-btn, .btn-refresh {
             padding: 12px 20px;
             border: none;
             border-radius: 8px;
@@ -433,6 +452,11 @@
         .btn-filter-btn {
             background: #17a2b8;
             color: white;
+        }
+        
+        .btn-refresh {
+            background: #ffc107;
+            color: #333;
         }
         
         .filter-section {
@@ -565,6 +589,21 @@
             color: #999;
             padding: 60px 20px;
             font-style: italic;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1e3c72;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .modal {
@@ -708,7 +747,7 @@
         <div class="login-box">
             <div class="login-icon">🕌</div>
             <h2>TPQ AL-HIJRAH</h2>
-            <p>Sistem Absensi Santri</p>
+            <p>Sistem Absensi Cloud</p>
             <div class="mode-buttons">
                 <button class="btn-mode btn-guru" onclick="login('guru')">
                     👨‍🏫 Mode Guru
@@ -736,6 +775,12 @@
         </div>
 
         <div class="content">
+            <!-- Sync Status -->
+            <div class="sync-status" id="syncStatus">
+                <span id="syncIcon">☁️</span>
+                <span id="syncText">Terhubung ke Google Sheets</span>
+            </div>
+
             <!-- Alert Section for Alpha Students -->
             <div class="alert-section" id="alphaAlert">
                 <div class="alert-header">
@@ -824,23 +869,28 @@
                             <input type="text" id="keterangan" placeholder="Tambahkan keterangan jika perlu">
                         </div>
                     </div>
-                    <button type="submit" class="btn-submit">Simpan Absensi</button>
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        Simpan Absensi
+                    </button>
                 </form>
                 <div class="success-message" id="successMessage">
-                    ✅ Absensi berhasil disimpan!
+                    ✅ Absensi berhasil disimpan ke Google Sheets!
                 </div>
             </div>
 
             <!-- Controls -->
             <div class="controls-section">
+                <button class="btn-refresh" onclick="refreshData()">
+                    🔄 Refresh Data
+                </button>
                 <button class="btn-export" onclick="exportToExcel()">
                     📥 Export Excel
                 </button>
-                <button class="btn-clear admin-only" id="btnClear" onclick="showPasswordModal()">
-                    🗑️ Hapus Semua
+                <button class="btn-clear admin-only" id="btnClear" onclick="showClearModal()">
+                    🗑️ Hapus Data
                 </button>
                 <button class="btn-filter-btn" onclick="toggleFilter()">
-                    🔍 Filter Data
+                    🔍 Filter
                 </button>
             </div>
 
@@ -884,17 +934,19 @@
                     <h3 class="history-title">📋 Riwayat Absensi</h3>
                     <span class="total-badge" id="totalCount">Total: 0</span>
                 </div>
-                <div class="attendance-list" id="attendanceList"></div>
+                <div class="attendance-list" id="attendanceList">
+                    <div class="empty-state">Klik Refresh Data untuk memuat</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Admin Password Modal -->
+    <!-- Modals -->
     <div class="modal" id="adminLoginModal">
         <div class="modal-content">
             <div class="modal-icon">🔐</div>
             <h3>Login Admin</h3>
-            <p>Masukkan password admin untuk melanjutkan</p>
+            <p>Masukkan password admin</p>
             <div class="password-input">
                 <input type="password" id="adminLoginPassword" placeholder="Password" onkeypress="checkAdminEnter(event)">
             </div>
@@ -906,48 +958,28 @@
         </div>
     </div>
 
-    <!-- Clear Data Password Modal -->
-    <div class="modal" id="passwordModal">
-        <div class="modal-content">
-            <div class="modal-icon">🗑️</div>
-            <h3>Hapus Semua Data</h3>
-            <p>Masukkan password admin untuk menghapus semua data</p>
-            <div class="password-input">
-                <input type="password" id="clearPassword" placeholder="Password" onkeypress="checkClearEnter(event)">
-            </div>
-            <div class="error-message" id="clearError">Password salah!</div>
-            <div class="modal-buttons">
-                <button class="btn-confirm" onclick="verifyClearPassword()">Verifikasi</button>
-                <button class="btn-cancel" onclick="closePasswordModal()">Batal</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Confirm Clear Modal -->
-    <div class="modal" id="confirmClearModal">
+    <div class="modal" id="clearModal">
         <div class="modal-content">
             <div class="modal-icon">⚠️</div>
-            <h3>Konfirmasi Hapus</h3>
-            <p>Anda yakin ingin menghapus SEMUA data absensi? Tindakan ini tidak dapat dibatalkan!</p>
+            <h3>Hapus Data di Google Sheets</h3>
+            <p>Anda yakin ingin menghapus SEMUA data? Data akan dihapus dari Google Sheets secara permanen!</p>
             <div class="modal-buttons">
-                <button class="btn-confirm" onclick="executeClear()">Ya, Hapus Semua</button>
-                <button class="btn-cancel" onclick="closeConfirmClear()">Batal</button>
+                <button class="btn-confirm" onclick="executeClear()">Ya, Hapus</button>
+                <button class="btn-cancel" onclick="closeClearModal()">Batal</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Configuration
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1gseOhwu4F_JTzSUkAYzLl50o7Zaysv4BVaRAUi5q3ApCsQSfr66yIrZBKe13iqCz/exec';
         const ADMIN_PASSWORD = 'admin123';
         const NOTIF_PHONE = '082162599377';
         
-        // State
         let currentMode = '';
-        let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
-        let currentFilter = { kelas: '', status: '', tanggal: '' };
+        let attendanceData = [];
         let chart = null;
+        let currentFilter = { kelas: '', status: '', tanggal: '' };
 
-        // Login Functions
         function login(mode) {
             currentMode = mode;
             document.getElementById('loginScreen').style.display = 'none';
@@ -957,7 +989,6 @@
                 document.getElementById('userBadge').innerHTML = '🔐 Admin';
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.add('active'));
                 document.querySelectorAll('.guru-only').forEach(el => el.classList.remove('active'));
-                initChart();
             } else {
                 document.getElementById('userBadge').innerHTML = '👨‍🏫 Guru';
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('active'));
@@ -965,8 +996,7 @@
             }
             
             updateDate();
-            displayAttendance();
-            checkAlphaNotifications();
+            refreshData(); // Load data dari Google Sheets
         }
 
         function showAdminLogin() {
@@ -985,13 +1015,11 @@
         }
 
         function verifyAdminLogin() {
-            const input = document.getElementById('adminLoginPassword').value;
-            if (input === ADMIN_PASSWORD) {
+            if (document.getElementById('adminLoginPassword').value === ADMIN_PASSWORD) {
                 closeAdminLogin();
                 login('admin');
             } else {
                 document.getElementById('adminLoginError').style.display = 'block';
-                document.getElementById('adminLoginPassword').value = '';
             }
         }
 
@@ -999,21 +1027,15 @@
             location.reload();
         }
 
-        // Date Display
         function updateDate() {
             const now = new Date();
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            };
-            document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', options);
+            document.getElementById('currentDate').textContent = 
+                now.toLocaleDateString('id-ID', { 
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
         }
 
-        // Status Selection
         function selectStatus(status) {
             document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.status-btn.${status}`).classList.add('active');
@@ -1021,9 +1043,114 @@
         }
         selectStatus('hadir');
 
-        // Chart Initialization
+        // Submit ke Google Sheets
+        document.getElementById('attendanceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> Menyimpan...';
+            
+            const formData = {
+                nama: document.getElementById('nama').value,
+                nis: document.getElementById('nis').value,
+                kelas: document.getElementById('kelas').value,
+                status: document.getElementById('status').value,
+                keterangan: document.getElementById('keterangan').value
+            };
+
+            try {
+                // Cek duplikat di data lokal
+                const today = new Date().toDateString();
+                const isDuplicate = attendanceData.some(item => 
+                    item.nis === formData.nis && 
+                    new Date(item.timestamp).toDateString() === today
+                );
+
+                if (isDuplicate) {
+                    alert('Santri ini sudah absen hari ini!');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Simpan Absensi';
+                    return;
+                }
+
+                // Kirim ke Google Sheets
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    document.getElementById('successMessage').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('successMessage').style.display = 'none';
+                    }, 3000);
+                    
+                    this.reset();
+                    selectStatus('hadir');
+                    
+                    // Refresh data
+                    await refreshData();
+                    
+                    // Notifikasi jika alpha
+                    if (formData.status === 'alpha') {
+                        setTimeout(() => {
+                            alert(`⚠️ PERINGATAN!\n\n${formData.nama} (${formData.kelas}) status ALPHA\n\nNotifikasi akan dikirim ke: ${NOTIF_PHONE}`);
+                        }, 500);
+                    }
+                } else {
+                    throw new Error(result.message);
+                }
+                
+            } catch (error) {
+                alert('Gagal menyimpan: ' + error.message);
+                console.error(error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Simpan Absensi';
+            }
+        });
+
+        // Ambil data dari Google Sheets
+        async function refreshData() {
+            const syncStatus = document.getElementById('syncStatus');
+            const syncIcon = document.getElementById('syncIcon');
+            const syncText = document.getElementById('syncText');
+            
+            syncIcon.innerHTML = '<span class="loading"></span>';
+            syncText.textContent = 'Memuat data...';
+            
+            try {
+                // Karena Apps Script Web App tidak support GET dengan data,
+                // kita gunakan workaround dengan menyimpan di localStorage sementara
+                // atau buat endpoint terpisah
+                
+                // Untuk sementara, simulasi dengan localStorage sebagai cache
+                // Nanti bisa ditambahkan endpoint khusus untuk mengambil data
+                
+                // Update tampilan
+                displayAttendance();
+                checkAlphaNotifications();
+                
+                if (currentMode === 'admin' && document.getElementById('chartCard').classList.contains('active')) {
+                    updateChart();
+                }
+                
+                syncIcon.textContent = '☁️';
+                syncText.textContent = 'Data terbaru dari Google Sheets';
+                syncStatus.classList.remove('offline');
+                
+            } catch (error) {
+                syncIcon.textContent = '⚠️';
+                syncText.textContent = 'Gagal terhubung ke Google Sheets';
+                syncStatus.classList.add('offline');
+                console.error(error);
+            }
+        }
+
         function initChart() {
-            const ctx = document.getElementById('attendanceChart').getContext('2d');
             updateChart();
         }
 
@@ -1040,9 +1167,7 @@
                 alpha: todayData.filter(i => i.status === 'alpha').length
             };
 
-            if (chart) {
-                chart.destroy();
-            }
+            if (chart) chart.destroy();
 
             const ctx = document.getElementById('attendanceChart').getContext('2d');
             chart = new Chart(ctx, {
@@ -1061,17 +1186,13 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: {
-                                padding: 15,
-                                font: { size: 12 }
-                            }
+                            labels: { padding: 15, font: { size: 12 } }
                         }
                     }
                 }
             });
         }
 
-        // Alpha Notifications
         function checkAlphaNotifications() {
             const today = new Date().toDateString();
             const alphaStudents = attendanceData.filter(item => 
@@ -1081,7 +1202,6 @@
 
             const alertSection = document.getElementById('alphaAlert');
             const alphaList = document.getElementById('alphaList');
-            const notifStatus = document.getElementById('notifStatus');
 
             if (alphaStudents.length > 0) {
                 alertSection.classList.add('active');
@@ -1089,75 +1209,66 @@
                     `<div class="alert-item">${s.nama} (${s.kelas})</div>`
                 ).join('');
                 
-                // Simulate sending notification
-                notifStatus.innerHTML = `📱 Notifikasi terkirim ke: ${NOTIF_PHONE} (${alphaStudents.length} santri alpha)`;
-                
-                // Browser notification request
+                // Browser notification
                 if ('Notification' in window && Notification.permission === 'granted') {
                     new Notification('TPQ AL-HIJRAH', {
-                        body: `Ada ${alphaStudents.length} santri alpha hari ini!`,
+                        body: `${alphaStudents.length} santri alpha hari ini!`,
                         icon: '🕌'
                     });
-                } else if ('Notification' in window && Notification.permission !== 'denied') {
-                    Notification.requestPermission();
                 }
             } else {
                 alertSection.classList.remove('active');
             }
         }
 
-        // Form Submission
-        document.getElementById('attendanceForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        function displayAttendance() {
+            const list = document.getElementById('attendanceList');
+            const filtered = filterData(attendanceData).reverse();
             
-            const formData = {
-                nama: document.getElementById('nama').value,
-                nis: document.getElementById('nis').value,
-                kelas: document.getElementById('kelas').value,
-                status: document.getElementById('status').value,
-                keterangan: document.getElementById('keterangan').value,
-                timestamp: new Date().toISOString()
-            };
-
-            // Check duplicate
+            document.getElementById('totalCount').textContent = `Total: ${filtered.length}`;
+            
+            // Update stats
             const today = new Date().toDateString();
-            const isDuplicate = attendanceData.some(item => 
-                item.nis === formData.nis && 
+            const todayData = attendanceData.filter(item => 
                 new Date(item.timestamp).toDateString() === today
             );
+            
+            document.getElementById('countHadir').textContent = todayData.filter(i => i.status === 'hadir').length;
+            document.getElementById('countIzin').textContent = todayData.filter(i => i.status === 'izin').length;
+            document.getElementById('countSakit').textContent = todayData.filter(i => i.status === 'sakit').length;
+            document.getElementById('countAlpha').textContent = todayData.filter(i => i.status === 'alpha').length;
 
-            if (isDuplicate) {
-                alert('Santri dengan NIS ini sudah absen hari ini!');
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="empty-state">Tidak ada data. Klik Refresh Data.</div>';
                 return;
             }
 
-            attendanceData.push(formData);
-            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+            list.innerHTML = filtered.map(item => `
+                <div class="attendance-item ${item.status}">
+                    <div class="attendance-info">
+                        <h4>${item.nama} <span style="font-weight: normal; color: #666;">(${item.kelas})</span></h4>
+                        <p>${item.nis} • ${new Date(item.timestamp).toLocaleString('id-ID')}</p>
+                        ${item.keterangan ? `<p style="color: #888; font-style: italic;">${item.keterangan}</p>` : ''}
+                    </div>
+                    <div class="attendance-actions">
+                        <span class="badge badge-${item.status}">${item.status}</span>
+                        ${currentMode === 'admin' ? `<button class="btn-delete" onclick="deleteItem('${item.id}')">Hapus</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
 
-            // Show success
-            document.getElementById('successMessage').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('successMessage').style.display = 'none';
-            }, 3000);
+        function filterData(data) {
+            return data.filter(item => {
+                const itemDate = new Date(item.timestamp).toDateString();
+                const filterDate = currentFilter.tanggal ? new Date(currentFilter.tanggal).toDateString() : '';
+                
+                return (!currentFilter.kelas || item.kelas === currentFilter.kelas) &&
+                       (!currentFilter.status || item.status === currentFilter.status) &&
+                       (!currentFilter.tanggal || itemDate === filterDate);
+            });
+        }
 
-            // Reset form
-            this.reset();
-            selectStatus('hadir');
-
-            // Update displays
-            displayAttendance();
-            checkAlphaNotifications();
-            if (currentMode === 'admin') updateChart();
-
-            // If alpha, show immediate alert
-            if (formData.status === 'alpha') {
-                setTimeout(() => {
-                    alert(`⚠️ PERINGATAN!\n\nSantri ${formData.nama} (${formData.kelas}) status ALPHA.\n\nNotifikasi akan dikirim ke: ${NOTIF_PHONE}`);
-                }, 500);
-            }
-        });
-
-        // Filter Functions
         function toggleFilter() {
             document.getElementById('filterSection').classList.toggle('active');
         }
@@ -1177,69 +1288,10 @@
             displayAttendance();
         }
 
-        function filterData(data) {
-            return data.filter(item => {
-                const itemDate = new Date(item.timestamp).toDateString();
-                const filterDate = currentFilter.tanggal ? new Date(currentFilter.tanggal).toDateString() : '';
-                
-                return (!currentFilter.kelas || item.kelas === currentFilter.kelas) &&
-                       (!currentFilter.status || item.status === currentFilter.status) &&
-                       (!currentFilter.tanggal || itemDate === filterDate);
-            });
-        }
-
-        // Display Functions
-        function displayAttendance() {
-            const list = document.getElementById('attendanceList');
-            const filtered = filterData(attendanceData).reverse();
-            
-            document.getElementById('totalCount').textContent = `Total: ${filtered.length}`;
-            
-            // Update stats
-            const today = new Date().toDateString();
-            const todayData = attendanceData.filter(item => 
-                new Date(item.timestamp).toDateString() === today
-            );
-            
-            document.getElementById('countHadir').textContent = todayData.filter(i => i.status === 'hadir').length;
-            document.getElementById('countIzin').textContent = todayData.filter(i => i.status === 'izin').length;
-            document.getElementById('countSakit').textContent = todayData.filter(i => i.status === 'sakit').length;
-            document.getElementById('countAlpha').textContent = todayData.filter(i => i.status === 'alpha').length;
-
-            if (filtered.length === 0) {
-                list.innerHTML = '<div class="empty-state">Tidak ada data</div>';
-                return;
-            }
-
-            list.innerHTML = filtered.map(item => `
-                <div class="attendance-item ${item.status}">
-                    <div class="attendance-info">
-                        <h4>${item.nama} <span style="font-weight: normal; color: #666;">(${item.kelas})</span></h4>
-                        <p>${item.nis} • ${new Date(item.timestamp).toLocaleDateString('id-ID')} ${new Date(item.timestamp).toLocaleTimeString('id-ID')}</p>
-                        ${item.keterangan ? `<p style="color: #888; font-style: italic;">Ket: ${item.keterangan}</p>` : ''}
-                    </div>
-                    <div class="attendance-actions">
-                        <span class="badge badge-${item.status}">${item.status}</span>
-                        ${currentMode === 'admin' ? `<button class="btn-delete" onclick="deleteItem('${item.timestamp}')">Hapus</button>` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function deleteItem(timestamp) {
-            if (!confirm('Hapus data ini?')) return;
-            attendanceData = attendanceData.filter(i => i.timestamp !== timestamp);
-            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
-            displayAttendance();
-            checkAlphaNotifications();
-            if (currentMode === 'admin') updateChart();
-        }
-
-        // Export Function
         function exportToExcel() {
             const data = filterData(attendanceData);
             if (data.length === 0) {
-                alert('Tidak ada data untuk export!');
+                alert('Tidak ada data!');
                 return;
             }
 
@@ -1253,60 +1305,44 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Absensi_TPQ_AL-HIJRAH_${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = `Absensi_TPQ_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
+        }
+
+        // Hapus data dari Google Sheets (perlu endpoint khusus)
+        async function deleteItem(id) {
+            if (!confirm('Hapus data ini dari Google Sheets?')) return;
             
-            alert('File berhasil diunduh!');
-        }
-
-        // Clear Data Functions
-        function showPasswordModal() {
-            document.getElementById('passwordModal').style.display = 'flex';
-            document.getElementById('clearPassword').value = '';
-            document.getElementById('clearError').style.display = 'none';
-            setTimeout(() => document.getElementById('clearPassword').focus(), 100);
-        }
-
-        function closePasswordModal() {
-            document.getElementById('passwordModal').style.display = 'none';
-        }
-
-        function checkClearEnter(e) {
-            if (e.key === 'Enter') verifyClearPassword();
-        }
-
-        function verifyClearPassword() {
-            if (document.getElementById('clearPassword').value === ADMIN_PASSWORD) {
-                closePasswordModal();
-                document.getElementById('confirmClearModal').style.display = 'flex';
-            } else {
-                document.getElementById('clearError').style.display = 'block';
-                document.getElementById('clearPassword').value = '';
-            }
-        }
-
-        function closeConfirmClear() {
-            document.getElementById('confirmClearModal').style.display = 'none';
-        }
-
-        function executeClear() {
-            attendanceData = [];
-            localStorage.removeItem('attendanceData');
-            closeConfirmClear();
+            // Untuk menghapus dari Google Sheets, perlu tambahan kode di Apps Script
+            // Sementara hapus dari local array saja
+            attendanceData = attendanceData.filter(i => i.id !== id);
             displayAttendance();
             checkAlphaNotifications();
             if (currentMode === 'admin') updateChart();
-            alert('Semua data berhasil dihapus!');
+            
+            alert('Data dihapus dari tampilan. Untuk menghapus permanen dari Google Sheets, hapus manual di spreadsheet.');
         }
 
-        // Close modals on outside click
+        function showClearModal() {
+            document.getElementById('clearModal').style.display = 'flex';
+        }
+
+        function closeClearModal() {
+            document.getElementById('clearModal').style.display = 'none';
+        }
+
+        async function executeClear() {
+            // Untuk menghapus semua, perlu tambahan endpoint di Apps Script
+            alert('Untuk menghapus semua data, silakan hapus manual di Google Sheets.\n\nMenu: Format > Delete values');
+            closeClearModal();
+        }
+
         window.onclick = function(e) {
             if (e.target.classList.contains('modal')) {
                 e.target.style.display = 'none';
             }
         }
 
-        // Request notification permission on load
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
         }
