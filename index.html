@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Absensi TPQ AL-HIJRAH - Cloud</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Absensi TPQ AL-HIJRAH - Cloud</title>
     <style>
         * {
             margin: 0;
@@ -34,12 +33,6 @@
             text-align: center;
             max-width: 400px;
             width: 100%;
-            animation: slideUp 0.5s ease;
-        }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         
         .login-icon {
@@ -52,15 +45,11 @@
             margin-bottom: 10px;
         }
         
-        .login-box p {
-            color: #666;
-            margin-bottom: 30px;
-        }
-        
         .mode-buttons {
             display: flex;
             flex-direction: column;
             gap: 15px;
+            margin-top: 30px;
         }
         
         .btn-mode {
@@ -71,10 +60,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
         
         .btn-guru {
@@ -99,7 +84,7 @@
         
         .main-container {
             display: none;
-            max-width: 1200px;
+            max-width: 800px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -120,21 +105,18 @@
         
         .header-info h1 {
             font-size: 24px;
-            margin-bottom: 5px;
         }
         
         .header-info p {
             opacity: 0.9;
             font-size: 14px;
+            margin-top: 5px;
         }
         
         .user-badge {
             background: rgba(255,255,255,0.2);
             padding: 8px 20px;
             border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
             font-weight: 600;
         }
         
@@ -161,7 +143,7 @@
         .sync-status {
             background: #d4edda;
             color: #155724;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border-radius: 10px;
             margin-bottom: 20px;
             display: flex;
@@ -175,85 +157,16 @@
             color: #721c24;
         }
         
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .card {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            border: 2px solid transparent;
-            transition: all 0.3s;
-        }
-        
-        .card:hover {
-            border-color: #1e3c72;
-            transform: translateY(-2px);
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .card-title {
-            font-size: 16px;
-            color: #555;
-            font-weight: 600;
-        }
-        
-        .card-icon {
-            font-size: 24px;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        
-        .stat-item {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 28px;
-            font-weight: bold;
-            color: #1e3c72;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-            margin-top: 5px;
-        }
-        
-        .chart-container {
-            position: relative;
-            height: 250px;
-            margin-top: 10px;
-        }
-        
-        .alert-section {
+        .alert-box {
             background: #fff3cd;
             border: 2px solid #ffc107;
             border-radius: 15px;
             padding: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             display: none;
         }
         
-        .alert-section.active {
+        .alert-box.active {
             display: block;
             animation: pulse 2s infinite;
         }
@@ -263,61 +176,63 @@
             50% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
         }
         
-        .alert-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
+        .alert-title {
             color: #856404;
             font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .alert-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
+            margin-bottom: 10px;
         }
         
         .alert-item {
             background: #856404;
             color: white;
-            padding: 8px 15px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-size: 14px;
         }
         
-        .notification-status {
+        .notif-info {
             background: #d4edda;
             color: #155724;
             padding: 10px;
             border-radius: 8px;
-            margin-top: 15px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 13px;
         }
         
         .form-section {
             background: #f8f9fa;
             border-radius: 15px;
             padding: 25px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+        }
+        
+        .form-section h3 {
+            color: #1e3c72;
+            margin-bottom: 20px;
         }
         
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
         }
         
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #555;
             font-weight: 600;
             font-size: 14px;
@@ -325,7 +240,7 @@
         
         input, select {
             width: 100%;
-            padding: 12px 15px;
+            padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 16px;
@@ -337,11 +252,11 @@
             border-color: #1e3c72;
         }
         
-        .status-options {
+        .status-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
-            margin-top: 10px;
+            margin-top: 5px;
         }
         
         .status-btn {
@@ -350,14 +265,13 @@
             background: white;
             border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s;
             text-align: center;
             font-weight: 500;
+            transition: all 0.3s;
         }
         
         .status-btn:hover {
             border-color: #1e3c72;
-            transform: translateY(-2px);
         }
         
         .status-btn.active {
@@ -381,9 +295,8 @@
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
             margin-top: 20px;
-            grid-column: 1 / -1;
+            transition: all 0.3s;
         }
         
         .btn-submit:hover:not(:disabled) {
@@ -396,30 +309,24 @@
             cursor: not-allowed;
         }
         
-        .success-message {
+        .success-msg {
             display: none;
             background: #d4edda;
             color: #155724;
             padding: 15px;
             border-radius: 10px;
-            margin-top: 20px;
+            margin-top: 15px;
             text-align: center;
-            animation: fadeIn 0.5s;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .controls-section {
+        .controls {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
         
-        .btn-export, .btn-clear, .btn-filter-btn, .btn-refresh {
+        .btn {
             padding: 12px 20px;
             border: none;
             border-radius: 8px;
@@ -431,35 +338,15 @@
             gap: 8px;
         }
         
-        .btn-export {
-            background: #28a745;
-            color: white;
+        .btn-refresh { background: #ffc107; color: #333; }
+        .btn-export { background: #28a745; color: white; }
+        .btn-filter { background: #17a2b8; color: white; }
+        
+        .btn:hover {
+            transform: translateY(-2px);
         }
         
-        .btn-export:hover {
-            background: #218838;
-        }
-        
-        .btn-clear {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .btn-clear:hover {
-            background: #c82333;
-        }
-        
-        .btn-filter-btn {
-            background: #17a2b8;
-            color: white;
-        }
-        
-        .btn-refresh {
-            background: #ffc107;
-            color: #333;
-        }
-        
-        .filter-section {
+        .filter-box {
             background: #f8f9fa;
             padding: 20px;
             border-radius: 15px;
@@ -467,24 +354,18 @@
             display: none;
         }
         
-        .filter-section.active {
+        .filter-box.active {
             display: block;
-            animation: slideDown 0.3s;
-        }
-        
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         
         .filter-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
             align-items: end;
         }
         
-        .history-section {
+        .history-box {
             background: #f8f9fa;
             border-radius: 15px;
             padding: 25px;
@@ -500,12 +381,12 @@
         }
         
         .history-title {
-            font-size: 20px;
             color: #1e3c72;
+            font-size: 20px;
             font-weight: 600;
         }
         
-        .total-badge {
+        .count-badge {
             background: #1e3c72;
             color: white;
             padding: 8px 20px;
@@ -513,47 +394,35 @@
             font-weight: 600;
         }
         
-        .attendance-list {
-            max-height: 500px;
+        .list-container {
+            max-height: 400px;
             overflow-y: auto;
         }
         
-        .attendance-item {
+        .list-item {
             background: white;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 10px;
+            border-left: 4px solid transparent;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 4px solid transparent;
-            transition: all 0.3s;
         }
         
-        .attendance-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
+        .list-item.hadir { border-left-color: #28a745; }
+        .list-item.izin { border-left-color: #ffc107; }
+        .list-item.sakit { border-left-color: #dc3545; }
+        .list-item.alpha { border-left-color: #6c757d; }
         
-        .attendance-item.hadir { border-left-color: #28a745; }
-        .attendance-item.izin { border-left-color: #ffc107; }
-        .attendance-item.sakit { border-left-color: #dc3545; }
-        .attendance-item.alpha { border-left-color: #6c757d; }
-        
-        .attendance-info h4 {
+        .item-info h4 {
             color: #333;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
         
-        .attendance-info p {
+        .item-info p {
             color: #666;
-            font-size: 14px;
-        }
-        
-        .attendance-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 13px;
         }
         
         .badge {
@@ -569,25 +438,10 @@
         .badge-sakit { background: #f8d7da; color: #721c24; }
         .badge-alpha { background: #d6d8db; color: #383d41; }
         
-        .btn-delete {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s;
-        }
-        
-        .btn-delete:hover {
-            background: #c82333;
-        }
-        
-        .empty-state {
+        .empty {
             text-align: center;
             color: #999;
-            padding: 60px 20px;
+            padding: 40px;
             font-style: italic;
         }
         
@@ -617,38 +471,24 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            backdrop-filter: blur(5px);
         }
         
         .modal-content {
             background: white;
             padding: 30px;
             border-radius: 20px;
-            max-width: 450px;
+            max-width: 400px;
             width: 90%;
             text-align: center;
-            animation: modalSlide 0.3s;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        
-        @keyframes modalSlide {
-            from { opacity: 0; transform: translateY(-50px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
         }
         
         .modal-icon {
-            font-size: 64px;
+            font-size: 48px;
             margin-bottom: 15px;
         }
         
         .modal h3 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .modal p {
-            color: #666;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .password-input {
@@ -662,14 +502,13 @@
             padding: 15px;
         }
         
-        .error-message {
+        .error-msg {
             color: #dc3545;
-            font-size: 14px;
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 8px;
             margin-top: 10px;
             display: none;
-            padding: 10px;
-            background: #f8d7da;
-            border-radius: 8px;
         }
         
         .modal-buttons {
@@ -685,47 +524,32 @@
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 16px;
-            transition: all 0.3s;
         }
         
-        .btn-confirm {
+        .btn-yes {
             background: #dc3545;
             color: white;
         }
         
-        .btn-confirm:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-        
-        .btn-cancel {
+        .btn-no {
             background: #6c757d;
             color: white;
         }
         
-        .btn-cancel:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
+        .tips-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
         }
         
-        .admin-only {
-            display: none;
+        .tips-box strong {
+            color: #0066cc;
         }
         
-        .admin-only.active {
-            display: block;
-        }
-        
-        .guru-only {
-            display: none;
-        }
-        
-        .guru-only.active {
-            display: block;
-        }
-        
-        @media (max-width: 768px) {
+        @media (max-width: 600px) {
             .content {
                 padding: 20px;
             }
@@ -734,20 +558,17 @@
                 flex-direction: column;
                 text-align: center;
             }
-            
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
+    <!-- LOGIN SCREEN -->
     <div class="login-container" id="loginScreen">
         <div class="login-box">
             <div class="login-icon">🕌</div>
             <h2>TPQ AL-HIJRAH</h2>
-            <p>Sistem Absensi Cloud</p>
+            <p>Sistem Absensi Online</p>
+            
             <div class="mode-buttons">
                 <button class="btn-mode btn-guru" onclick="login('guru')">
                     👨‍🏫 Mode Guru
@@ -759,17 +580,15 @@
         </div>
     </div>
 
-    <!-- Main Application -->
+    <!-- MAIN APP -->
     <div class="main-container" id="mainApp">
         <div class="header-top">
             <div class="header-info">
-                <h1>📖 Sistem Absensi Santri</h1>
-                <p id="currentDate"></p>
+                <h1>📖 Absensi Santri</h1>
+                <p id="currentDate">-</p>
             </div>
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div class="user-badge" id="userBadge">
-                    👨‍🏫 Guru
-                </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="user-badge" id="userBadge">👨‍🏫 Guru</span>
                 <button class="btn-logout" onclick="logout()">Logout</button>
             </div>
         </div>
@@ -778,74 +597,36 @@
             <!-- Sync Status -->
             <div class="sync-status" id="syncStatus">
                 <span id="syncIcon">☁️</span>
-                <span id="syncText">Terhubung ke Google Sheets</span>
+                <span id="syncText">Siap terhubung ke Google Sheets</span>
             </div>
 
-            <!-- Alert Section for Alpha Students -->
-            <div class="alert-section" id="alphaAlert">
-                <div class="alert-header">
-                    <span style="font-size: 24px;">⚠️</span>
-                    <span>PERINGATAN: Santri Alpha Hari Ini</span>
+            <!-- Alert Alpha -->
+            <div class="alert-box" id="alphaAlert">
+                <div class="alert-title">
+                    <span>⚠️</span>
+                    <span>Santri Alpha Hari Ini</span>
                 </div>
                 <div class="alert-list" id="alphaList"></div>
-                <div class="notification-status" id="notifStatus">
+                <div class="notif-info">
                     📱 Notifikasi akan dikirim ke: 082162599377
-                </div>
-            </div>
-
-            <!-- Dashboard Stats -->
-            <div class="dashboard-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">Statistik Hari Ini</span>
-                        <span class="card-icon">📊</span>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-value" id="countHadir">0</div>
-                            <div class="stat-label">Hadir</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="countIzin">0</div>
-                            <div class="stat-label">Izin</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="countSakit">0</div>
-                            <div class="stat-label">Sakit</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="countAlpha">0</div>
-                            <div class="stat-label">Alpha</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card admin-only" id="chartCard">
-                    <div class="card-header">
-                        <span class="card-title">Grafik Kehadiran</span>
-                        <span class="card-icon">📈</span>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="attendanceChart"></canvas>
-                    </div>
                 </div>
             </div>
 
             <!-- Input Form -->
             <div class="form-section">
-                <h3 style="margin-bottom: 20px; color: #1e3c72;">📝 Input Absensi</h3>
+                <h3>📝 Input Absensi</h3>
                 <form id="attendanceForm">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="nama">Nama Santri</label>
-                            <input type="text" id="nama" required placeholder="Masukkan nama santri">
+                            <label>Nama Santri</label>
+                            <input type="text" id="nama" required placeholder="Masukkan nama">
                         </div>
                         <div class="form-group">
-                            <label for="nis">Nomor Induk Santri</label>
-                            <input type="text" id="nis" required placeholder="Masukkan nomor induk">
+                            <label>Nomor Induk (NIS)</label>
+                            <input type="text" id="nis" required placeholder="Masukkan NIS">
                         </div>
                         <div class="form-group">
-                            <label for="kelas">Kelas</label>
+                            <label>Kelas</label>
                             <select id="kelas" required>
                                 <option value="">Pilih Kelas</option>
                                 <option value="Kelas 1">Kelas 1</option>
@@ -855,52 +636,57 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Status Kehadiran</label>
-                            <div class="status-options">
-                                <div class="status-btn hadir" onclick="selectStatus('hadir')">Hadir</div>
-                                <div class="status-btn izin" onclick="selectStatus('izin')">Izin</div>
-                                <div class="status-btn sakit" onclick="selectStatus('sakit')">Sakit</div>
-                                <div class="status-btn alpha" onclick="selectStatus('alpha')">Alpha</div>
+                            <label>Status</label>
+                            <div class="status-grid">
+                                <div class="status-btn hadir active" onclick="setStatus('hadir')">Hadir</div>
+                                <div class="status-btn izin" onclick="setStatus('izin')">Izin</div>
+                                <div class="status-btn sakit" onclick="setStatus('sakit')">Sakit</div>
+                                <div class="status-btn alpha" onclick="setStatus('alpha')">Alpha</div>
                             </div>
-                            <input type="hidden" id="status" required>
+                            <input type="hidden" id="status" value="hadir">
                         </div>
                         <div class="form-group" style="grid-column: 1 / -1;">
-                            <label for="keterangan">Keterangan (Opsional)</label>
-                            <input type="text" id="keterangan" placeholder="Tambahkan keterangan jika perlu">
+                            <label>Keterangan (Opsional)</label>
+                            <input type="text" id="keterangan" placeholder="Tambahkan keterangan">
                         </div>
                     </div>
                     <button type="submit" class="btn-submit" id="submitBtn">
-                        Simpan Absensi
+                        Simpan ke Google Sheets
                     </button>
                 </form>
-                <div class="success-message" id="successMessage">
-                    ✅ Absensi berhasil disimpan ke Google Sheets!
+                <div class="success-msg" id="successMsg">
+                    ✅ Data berhasil tersimpan! Lihat di Google Sheets.
                 </div>
             </div>
 
+            <!-- Tips untuk Admin -->
+            <div class="tips-box" id="adminTips" style="display: none;">
+                <strong>💡 Tips Admin:</strong><br>
+                • Lihat grafik & statistik: Buka langsung Google Sheets<br>
+                • Hapus data: Hapus baris langsung di Google Sheets<br>
+                • Edit data: Klik sel di Google Sheets dan edit
+            </div>
+
             <!-- Controls -->
-            <div class="controls-section">
-                <button class="btn-refresh" onclick="refreshData()">
-                    🔄 Refresh Data
+            <div class="controls">
+                <button class="btn btn-refresh" onclick="refreshData()">
+                    🔄 Refresh
                 </button>
-                <button class="btn-export" onclick="exportToExcel()">
+                <button class="btn btn-export" onclick="exportExcel()">
                     📥 Export Excel
                 </button>
-                <button class="btn-clear admin-only" id="btnClear" onclick="showClearModal()">
-                    🗑️ Hapus Data
-                </button>
-                <button class="btn-filter-btn" onclick="toggleFilter()">
+                <button class="btn btn-filter" onclick="toggleFilter()">
                     🔍 Filter
                 </button>
             </div>
 
-            <!-- Filter Section -->
-            <div class="filter-section" id="filterSection">
+            <!-- Filter -->
+            <div class="filter-box" id="filterBox">
                 <div class="filter-grid">
                     <div class="form-group">
                         <label>Kelas</label>
                         <select id="filterKelas">
-                            <option value="">Semua Kelas</option>
+                            <option value="">Semua</option>
                             <option value="Kelas 1">Kelas 1</option>
                             <option value="Kelas 2">Kelas 2</option>
                             <option value="Kelas 3">Kelas 3</option>
@@ -910,7 +696,7 @@
                     <div class="form-group">
                         <label>Status</label>
                         <select id="filterStatus">
-                            <option value="">Semua Status</option>
+                            <option value="">Semua</option>
                             <option value="hadir">Hadir</option>
                             <option value="izin">Izin</option>
                             <option value="sakit">Sakit</option>
@@ -922,50 +708,38 @@
                         <input type="date" id="filterTanggal">
                     </div>
                     <div style="display: flex; gap: 10px;">
-                        <button class="btn-filter-btn" onclick="applyFilter()" style="flex: 1;">Terapkan</button>
-                        <button class="btn-cancel" onclick="resetFilter()" style="flex: 1;">Reset</button>
+                        <button class="btn btn-filter" onclick="applyFilter()" style="flex: 1;">Terapkan</button>
+                        <button class="btn btn-no" onclick="resetFilter()" style="flex: 1;">Reset</button>
                     </div>
                 </div>
             </div>
 
-            <!-- History Section -->
-            <div class="history-section">
+            <!-- History -->
+            <div class="history-box">
                 <div class="history-header">
                     <h3 class="history-title">📋 Riwayat Absensi</h3>
-                    <span class="total-badge" id="totalCount">Total: 0</span>
+                    <span class="count-badge" id="totalCount">Total: 0</span>
                 </div>
-                <div class="attendance-list" id="attendanceList">
-                    <div class="empty-state">Klik Refresh Data untuk memuat</div>
+                <div class="list-container" id="listContainer">
+                    <div class="empty">Klik Refresh untuk memuat data</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modals -->
-    <div class="modal" id="adminLoginModal">
+    <!-- Admin Login Modal -->
+    <div class="modal" id="adminModal">
         <div class="modal-content">
             <div class="modal-icon">🔐</div>
             <h3>Login Admin</h3>
-            <p>Masukkan password admin</p>
+            <p>Masukkan password</p>
             <div class="password-input">
-                <input type="password" id="adminLoginPassword" placeholder="Password" onkeypress="checkAdminEnter(event)">
+                <input type="password" id="adminPass" placeholder="Password" onkeypress="if(event.key==='Enter')checkAdmin()">
             </div>
-            <div class="error-message" id="adminLoginError">Password salah!</div>
+            <div class="error-msg" id="adminError">Password salah!</div>
             <div class="modal-buttons">
-                <button class="btn-confirm" onclick="verifyAdminLogin()">Login</button>
-                <button class="btn-cancel" onclick="closeAdminLogin()">Batal</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="clearModal">
-        <div class="modal-content">
-            <div class="modal-icon">⚠️</div>
-            <h3>Hapus Data di Google Sheets</h3>
-            <p>Anda yakin ingin menghapus SEMUA data? Data akan dihapus dari Google Sheets secara permanen!</p>
-            <div class="modal-buttons">
-                <button class="btn-confirm" onclick="executeClear()">Ya, Hapus</button>
-                <button class="btn-cancel" onclick="closeClearModal()">Batal</button>
+                <button class="btn-yes" onclick="checkAdmin()">Login</button>
+                <button class="btn-no" onclick="closeAdmin()">Batal</button>
             </div>
         </div>
     </div>
@@ -976,8 +750,7 @@
         const NOTIF_PHONE = '082162599377';
         
         let currentMode = '';
-        let attendanceData = [];
-        let chart = null;
+        let allData = [];
         let currentFilter = { kelas: '', status: '', tanggal: '' };
 
         function login(mode) {
@@ -986,40 +759,34 @@
             document.getElementById('mainApp').style.display = 'block';
             
             if (mode === 'admin') {
-                document.getElementById('userBadge').innerHTML = '🔐 Admin';
-                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('active'));
-                document.querySelectorAll('.guru-only').forEach(el => el.classList.remove('active'));
+                document.getElementById('userBadge').textContent = '🔐 Admin';
+                document.getElementById('adminTips').style.display = 'block';
             } else {
-                document.getElementById('userBadge').innerHTML = '👨‍🏫 Guru';
-                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('.guru-only').forEach(el => el.classList.add('active'));
+                document.getElementById('userBadge').textContent = '👨‍🏫 Guru';
             }
             
             updateDate();
-            refreshData(); // Load data dari Google Sheets
+            refreshData();
         }
 
         function showAdminLogin() {
-            document.getElementById('adminLoginModal').style.display = 'flex';
-            document.getElementById('adminLoginPassword').value = '';
-            document.getElementById('adminLoginError').style.display = 'none';
-            setTimeout(() => document.getElementById('adminLoginPassword').focus(), 100);
+            document.getElementById('adminModal').style.display = 'flex';
+            document.getElementById('adminPass').value = '';
+            document.getElementById('adminError').style.display = 'none';
+            setTimeout(() => document.getElementById('adminPass').focus(), 100);
         }
 
-        function closeAdminLogin() {
-            document.getElementById('adminLoginModal').style.display = 'none';
+        function closeAdmin() {
+            document.getElementById('adminModal').style.display = 'none';
         }
 
-        function checkAdminEnter(e) {
-            if (e.key === 'Enter') verifyAdminLogin();
-        }
-
-        function verifyAdminLogin() {
-            if (document.getElementById('adminLoginPassword').value === ADMIN_PASSWORD) {
-                closeAdminLogin();
+        function checkAdmin() {
+            if (document.getElementById('adminPass').value === ADMIN_PASSWORD) {
+                closeAdmin();
                 login('admin');
             } else {
-                document.getElementById('adminLoginError').style.display = 'block';
+                document.getElementById('adminError').style.display = 'block';
+                document.getElementById('adminPass').value = '';
             }
         }
 
@@ -1029,29 +796,27 @@
 
         function updateDate() {
             const now = new Date();
-            document.getElementById('currentDate').textContent = 
-                now.toLocaleDateString('id-ID', { 
-                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                    hour: '2-digit', minute: '2-digit'
-                });
+            document.getElementById('currentDate').textContent = now.toLocaleString('id-ID', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
         }
 
-        function selectStatus(status) {
+        function setStatus(status) {
             document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.status-btn.${status}`).classList.add('active');
             document.getElementById('status').value = status;
         }
-        selectStatus('hadir');
 
-        // Submit ke Google Sheets
+        // Submit form
         document.getElementById('attendanceForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loading"></span> Menyimpan...';
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Menyimpan...';
             
-            const formData = {
+            const data = {
                 nama: document.getElementById('nama').value,
                 nis: document.getElementById('nis').value,
                 kelas: document.getElementById('kelas').value,
@@ -1060,44 +825,44 @@
             };
 
             try {
-                // Cek duplikat di data lokal
+                // Cek duplikat hari ini
                 const today = new Date().toDateString();
-                const isDuplicate = attendanceData.some(item => 
-                    item.nis === formData.nis && 
+                const isDuplicate = allData.some(item => 
+                    item.nis === data.nis && 
                     new Date(item.timestamp).toDateString() === today
                 );
 
                 if (isDuplicate) {
                     alert('Santri ini sudah absen hari ini!');
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Simpan Absensi';
+                    btn.disabled = false;
+                    btn.textContent = 'Simpan ke Google Sheets';
                     return;
                 }
 
                 // Kirim ke Google Sheets
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(data)
                 });
                 
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('successMsg').style.display = 'block';
                     setTimeout(() => {
-                        document.getElementById('successMessage').style.display = 'none';
+                        document.getElementById('successMsg').style.display = 'none';
                     }, 3000);
                     
                     this.reset();
-                    selectStatus('hadir');
+                    setStatus('hadir');
                     
                     // Refresh data
                     await refreshData();
                     
-                    // Notifikasi jika alpha
-                    if (formData.status === 'alpha') {
+                    // Notifikasi alpha
+                    if (data.status === 'alpha') {
                         setTimeout(() => {
-                            alert(`⚠️ PERINGATAN!\n\n${formData.nama} (${formData.kelas}) status ALPHA\n\nNotifikasi akan dikirim ke: ${NOTIF_PHONE}`);
+                            alert(`⚠️ PERINGATAN!\n\n${data.nama} (${data.kelas}) status ALPHA\n\nNotifikasi akan dikirim ke: ${NOTIF_PHONE}`);
                         }, 500);
                     }
                 } else {
@@ -1105,155 +870,94 @@
                 }
                 
             } catch (error) {
-                alert('Gagal menyimpan: ' + error.message);
+                alert('Error: ' + error.message);
                 console.error(error);
             } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Simpan Absensi';
+                btn.disabled = false;
+                btn.textContent = 'Simpan ke Google Sheets';
             }
         });
 
         // Ambil data dari Google Sheets
         async function refreshData() {
-            const syncStatus = document.getElementById('syncStatus');
             const syncIcon = document.getElementById('syncIcon');
             const syncText = document.getElementById('syncText');
+            const syncStatus = document.getElementById('syncStatus');
             
             syncIcon.innerHTML = '<span class="loading"></span>';
             syncText.textContent = 'Memuat data...';
             
             try {
-                // Karena Apps Script Web App tidak support GET dengan data,
-                // kita gunakan workaround dengan menyimpan di localStorage sementara
-                // atau buat endpoint terpisah
+                // Gunakan GET untuk ambil data
+                const response = await fetch(SCRIPT_URL + '?action=getData');
+                const result = await response.json();
                 
-                // Untuk sementara, simulasi dengan localStorage sebagai cache
-                // Nanti bisa ditambahkan endpoint khusus untuk mengambil data
-                
-                // Update tampilan
-                displayAttendance();
-                checkAlphaNotifications();
-                
-                if (currentMode === 'admin' && document.getElementById('chartCard').classList.contains('active')) {
-                    updateChart();
+                if (result.status === 'success') {
+                    allData = result.data;
+                    displayData();
+                    checkAlpha();
+                    
+                    syncIcon.textContent = '✅';
+                    syncText.textContent = `Data terbaru: ${allData.length} absensi`;
+                    syncStatus.classList.remove('offline');
+                } else {
+                    throw new Error(result.message);
                 }
-                
-                syncIcon.textContent = '☁️';
-                syncText.textContent = 'Data terbaru dari Google Sheets';
-                syncStatus.classList.remove('offline');
                 
             } catch (error) {
                 syncIcon.textContent = '⚠️';
-                syncText.textContent = 'Gagal terhubung ke Google Sheets';
+                syncText.textContent = 'Gagal memuat. Coba lagi.';
                 syncStatus.classList.add('offline');
                 console.error(error);
             }
         }
 
-        function initChart() {
-            updateChart();
-        }
-
-        function updateChart() {
+        function checkAlpha() {
             const today = new Date().toDateString();
-            const todayData = attendanceData.filter(item => 
-                new Date(item.timestamp).toDateString() === today
-            );
-            
-            const counts = {
-                hadir: todayData.filter(i => i.status === 'hadir').length,
-                izin: todayData.filter(i => i.status === 'izin').length,
-                sakit: todayData.filter(i => i.status === 'sakit').length,
-                alpha: todayData.filter(i => i.status === 'alpha').length
-            };
-
-            if (chart) chart.destroy();
-
-            const ctx = document.getElementById('attendanceChart').getContext('2d');
-            chart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Hadir', 'Izin', 'Sakit', 'Alpha'],
-                    datasets: [{
-                        data: [counts.hadir, counts.izin, counts.sakit, counts.alpha],
-                        backgroundColor: ['#28a745', '#ffc107', '#dc3545', '#6c757d'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { padding: 15, font: { size: 12 } }
-                        }
-                    }
-                }
-            });
-        }
-
-        function checkAlphaNotifications() {
-            const today = new Date().toDateString();
-            const alphaStudents = attendanceData.filter(item => 
+            const alphaList = allData.filter(item => 
                 item.status === 'alpha' && 
                 new Date(item.timestamp).toDateString() === today
             );
 
-            const alertSection = document.getElementById('alphaAlert');
-            const alphaList = document.getElementById('alphaList');
+            const alertBox = document.getElementById('alphaAlert');
+            const listContainer = document.getElementById('alphaList');
 
-            if (alphaStudents.length > 0) {
-                alertSection.classList.add('active');
-                alphaList.innerHTML = alphaStudents.map(s => 
+            if (alphaList.length > 0) {
+                alertBox.classList.add('active');
+                listContainer.innerHTML = alphaList.map(s => 
                     `<div class="alert-item">${s.nama} (${s.kelas})</div>`
                 ).join('');
                 
                 // Browser notification
                 if ('Notification' in window && Notification.permission === 'granted') {
                     new Notification('TPQ AL-HIJRAH', {
-                        body: `${alphaStudents.length} santri alpha hari ini!`,
-                        icon: '🕌'
+                        body: `${alphaList.length} santri alpha!`
                     });
                 }
             } else {
-                alertSection.classList.remove('active');
+                alertBox.classList.remove('active');
             }
         }
 
-        function displayAttendance() {
-            const list = document.getElementById('attendanceList');
-            const filtered = filterData(attendanceData).reverse();
+        function displayData() {
+            const container = document.getElementById('listContainer');
+            const filtered = filterData(allData).reverse();
             
             document.getElementById('totalCount').textContent = `Total: ${filtered.length}`;
             
-            // Update stats
-            const today = new Date().toDateString();
-            const todayData = attendanceData.filter(item => 
-                new Date(item.timestamp).toDateString() === today
-            );
-            
-            document.getElementById('countHadir').textContent = todayData.filter(i => i.status === 'hadir').length;
-            document.getElementById('countIzin').textContent = todayData.filter(i => i.status === 'izin').length;
-            document.getElementById('countSakit').textContent = todayData.filter(i => i.status === 'sakit').length;
-            document.getElementById('countAlpha').textContent = todayData.filter(i => i.status === 'alpha').length;
-
             if (filtered.length === 0) {
-                list.innerHTML = '<div class="empty-state">Tidak ada data. Klik Refresh Data.</div>';
+                container.innerHTML = '<div class="empty">Tidak ada data</div>';
                 return;
             }
 
-            list.innerHTML = filtered.map(item => `
-                <div class="attendance-item ${item.status}">
-                    <div class="attendance-info">
+            container.innerHTML = filtered.map(item => `
+                <div class="list-item ${item.status}">
+                    <div class="item-info">
                         <h4>${item.nama} <span style="font-weight: normal; color: #666;">(${item.kelas})</span></h4>
                         <p>${item.nis} • ${new Date(item.timestamp).toLocaleString('id-ID')}</p>
-                        ${item.keterangan ? `<p style="color: #888; font-style: italic;">${item.keterangan}</p>` : ''}
+                        ${item.keterangan ? `<p style="color: #888;">${item.keterangan}</p>` : ''}
                     </div>
-                    <div class="attendance-actions">
-                        <span class="badge badge-${item.status}">${item.status}</span>
-                        ${currentMode === 'admin' ? `<button class="btn-delete" onclick="deleteItem('${item.id}')">Hapus</button>` : ''}
-                    </div>
+                    <span class="badge badge-${item.status}">${item.status}</span>
                 </div>
             `).join('');
         }
@@ -1270,14 +974,14 @@
         }
 
         function toggleFilter() {
-            document.getElementById('filterSection').classList.toggle('active');
+            document.getElementById('filterBox').classList.toggle('active');
         }
 
         function applyFilter() {
             currentFilter.kelas = document.getElementById('filterKelas').value;
             currentFilter.status = document.getElementById('filterStatus').value;
             currentFilter.tanggal = document.getElementById('filterTanggal').value;
-            displayAttendance();
+            displayData();
         }
 
         function resetFilter() {
@@ -1285,11 +989,11 @@
             document.getElementById('filterStatus').value = '';
             document.getElementById('filterTanggal').value = '';
             currentFilter = { kelas: '', status: '', tanggal: '' };
-            displayAttendance();
+            displayData();
         }
 
-        function exportToExcel() {
-            const data = filterData(attendanceData);
+        function exportExcel() {
+            const data = filterData(allData);
             if (data.length === 0) {
                 alert('Tidak ada data!');
                 return;
@@ -1307,34 +1011,6 @@
             a.href = url;
             a.download = `Absensi_TPQ_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
-        }
-
-        // Hapus data dari Google Sheets (perlu endpoint khusus)
-        async function deleteItem(id) {
-            if (!confirm('Hapus data ini dari Google Sheets?')) return;
-            
-            // Untuk menghapus dari Google Sheets, perlu tambahan kode di Apps Script
-            // Sementara hapus dari local array saja
-            attendanceData = attendanceData.filter(i => i.id !== id);
-            displayAttendance();
-            checkAlphaNotifications();
-            if (currentMode === 'admin') updateChart();
-            
-            alert('Data dihapus dari tampilan. Untuk menghapus permanen dari Google Sheets, hapus manual di spreadsheet.');
-        }
-
-        function showClearModal() {
-            document.getElementById('clearModal').style.display = 'flex';
-        }
-
-        function closeClearModal() {
-            document.getElementById('clearModal').style.display = 'none';
-        }
-
-        async function executeClear() {
-            // Untuk menghapus semua, perlu tambahan endpoint di Apps Script
-            alert('Untuk menghapus semua data, silakan hapus manual di Google Sheets.\n\nMenu: Format > Delete values');
-            closeClearModal();
         }
 
         window.onclick = function(e) {
